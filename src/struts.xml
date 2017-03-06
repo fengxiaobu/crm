@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE struts PUBLIC
+        "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+        "http://struts.apache.org/dtds/struts-2.0.dtd">
+<struts>
+    <constant name="struts.multipart.maxSize" value="222097152"/>
+    <constant name="struts.action.extension" value="action,do"/>
+<package name="crm" extends="struts-default" namespace="/">
+
+    <!--声明拦截器-->
+    <interceptors>
+        <interceptor name="loginInterceptor" class="com.crm.interceptor.LoginInterceptor">
+            <param name="excludeMethods">login</param>
+        </interceptor>
+    </interceptors>
+    <!--用户信息-->
+    <action name="user_*" class="userAction" method="{1}">
+
+        <result name="Log_in_by">/index.jsp</result>
+        <result name="Login_failed">/login.jsp</result>
+    </action>
+    <action name="customer_*" class="customerAction" method="{1}">
+
+        <!--使用自定义拦截器-->
+        <interceptor-ref name="loginInterceptor"></interceptor-ref>
+        <!--使用默认拦截器-->
+        <interceptor-ref name="defaultStack"></interceptor-ref>
+
+        <result name="Login_failed">/login.jsp</result>
+        <result name="toAddPage">/jsp/customer/add.jsp</result>
+        <result name="saveCustomer" type="redirectAction">customer_findAll</result>
+        <result name="list">/jsp/customer/list.jsp</result>
+        <result name="delCustomer" type="redirectAction">customer_pageCustomer</result>
+        <result name="showCustomer">/jsp/customer/edit.jsp</result>
+        <result name="updateCustomer" type="redirectAction">customer_findAll</result>
+        <result name="error" >/jsp/error.jsp</result>
+        <result name="pagelist" >/jsp/customer/pagelist.jsp</result>
+    </action>
+    <!--联系人-->
+    <action name="linkman_*" class="linkmanAction" method="{1}">
+        <result name="toAddPage">/jsp/linkman/add.jsp</result>
+        <result name="addLinkman">/jsp/success.jsp</result>
+        <result name="dellinkman">/jsp/success.jsp</result>
+        <result name="findAll">/jsp/linkman/list.jsp</result>
+    </action>
+</package>
+</struts>

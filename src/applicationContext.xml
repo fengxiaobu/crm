@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://www.springframework.org/schema/context
+	http://www.springframework.org/schema/context/spring-context.xsd
+	http://www.springframework.org/schema/aop
+	http://www.springframework.org/schema/aop/spring-aop.xsd
+	http://www.springframework.org/schema/tx
+	http://www.springframework.org/schema/tx/spring-tx.xsd">
+    <!--配置连接池 -->
+    <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+        <property name="driverClass" value="com.mysql.jdbc.Driver"/>
+        <property name="jdbcUrl" value="jdbc:mysql:///crm"/>
+        <property name="user" value="root"/>
+        <property name="password" value="qqle"/>
+        <property name="initialPoolSize" value="10"/>
+    </bean>
+    <!--配置连接对象-->
+    <bean id="sessionFactory" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="configLocation" value="classpath:hibernate.cfg.xml"/>
+    </bean>
+    <!--配置事务-->
+    <bean id="transactionManager" class="org.springframework.orm.hibernate5.HibernateTransactionManager">
+        <property name="sessionFactory" ref="sessionFactory"></property>
+    </bean>
+    <!--开启事务管理-->
+    <tx:annotation-driven transaction-manager="transactionManager"/>
+
+    <!--配置Hibernate模板-->
+    <bean id="hibernateTemplate" class="org.springframework.orm.hibernate5.HibernateTemplate">
+        <property name="sessionFactory" ref="sessionFactory"></property>
+    </bean>
+    <!--配置用户注入相关属性-->
+    <bean name="userDao" class="com.crm.dao.daoimpl.UserDaoImpl">
+        <property name="hibernateTemplate" ref="hibernateTemplate"></property>
+    </bean>
+
+    <bean name="userService" class="com.crm.service.serviceimpl.UserServiceImpl">
+        <property name="userDao" ref="userDao"></property>
+    </bean>
+
+    <bean name="userAction" class="com.crm.action.UserAction" scope="prototype">
+        <property name="userService" ref="userService"></property>
+    </bean>
+    <!--配置客户注入属性-->
+    <bean id="customerDao" class="com.crm.dao.daoimpl.CustomerDaoImpl">
+        <property name="hibernateTemplate" ref="hibernateTemplate"/>
+    </bean>
+    <bean id="customerService" class="com.crm.service.serviceimpl.CustomerServiceImpl">
+        <property name="customerDao" ref="customerDao"/>
+    </bean>
+    <bean id="customerAction" class="com.crm.action.CustomerAction">
+        <property name="customerService" ref="customerService"/>
+    </bean>
+
+    <!--配置联系人注入属性-->
+    <bean id="linkmanAction" class="com.crm.action.LinkmanAction" scope="prototype">
+        <property name="customerService" ref="customerService"/>
+        <property name="linkmanService" ref="linkmanService"/>
+    </bean>
+    <bean id="linkmanService" class="com.crm.service.serviceimpl.LinkmanServiceImpl">
+        <property name="linkManDao" ref="linkManDao"/>
+    </bean>
+    <bean id="linkManDao" class="com.crm.dao.daoimpl.LinkManDaoImpl">
+        <property name="hibernateTemplate" ref="hibernateTemplate"/>
+    </bean>
+
+</beans>
